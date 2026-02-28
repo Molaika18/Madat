@@ -24,6 +24,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Seed demo data on startup
+from coverage_score import seed_realistic_distributions
+seed_realistic_distributions()
+
+ml_add_report(26.32, 91.0, "food", 5)
+ml_add_report(26.321, 91.001, "food", 5)
+ml_add_report(26.322, 91.002, "food", 5)
+ml_add_report(26.323, 91.003, "food", 5)
+ml_add_report(26.324, 91.004, "food", 5)
+ml_add_report(26.325, 91.005, "food", 5)
+ml_add_report(26.326, 91.006, "food", 5)
+ml_add_report(26.15, 91.30, "water", 3)
+ml_add_report(26.151, 91.301, "water", 2)
+ml_add_report(26.152, 91.299, "food", 4)
+
 # Load NGOs once at startup
 with open("data/assam_ngos_geocoded.json") as f:
     NGO_DATA = json.load(f)
@@ -138,40 +153,9 @@ def get_clusters(db: Session = Depends(get_db)):
         for c in clusters
     ]
 
-
 @app.get("/alerts")
-def get_alerts(db: Session = Depends(get_db)):
-    clusters = db.query(models.Cluster).all()
-    alerts = []
-
-    for c in clusters:
-        coverage = get_coverage_at(c.centroid_lat, c.centroid_lon)
-        gap = 1 - coverage
-        cred_score = c.credibility
-
-        priority_score = round(cred_score * gap, 4)
-
-        if priority_score > 0.6:
-            level = "CRITICAL"
-        elif priority_score > 0.3:
-            level = "HIGH"
-        else:
-            level = "MEDIUM"
-
-        alerts.append({
-            "cluster_id": c.id,
-            "lat": c.centroid_lat,
-            "lon": c.centroid_lon,
-            "priority_score": priority_score,
-            "alert_level": level,
-            "dominant_need": c.category,
-            "cluster_size": c.cluster_size,
-            "coverage": round(coverage, 4),
-            "gap": round(gap, 4)
-        })
-
-    alerts.sort(key=lambda x: x["priority_score"], reverse=True)
-    return alerts
+def get_alerts():
+    return get_priority_alerts()
 
 @app.get("/coverage")
 def get_coverage():
@@ -185,7 +169,6 @@ def get_coverage():
 def get_ngos():
     return NGO_DATA
 
-
 @app.get("/ngos/nearby")
 def ngos_nearby(lat: float, lon: float, limit: int = 5):
     sorted_ngos = sorted(
@@ -194,6 +177,14 @@ def ngos_nearby(lat: float, lon: float, limit: int = 5):
     )
     return sorted_ngos[:limit]
 
+@app.get("/debug")
+def debug():
+    from cluster import reports, run_clustering
+    clusters = run_clustering()
+    return {
+        "report_count": len(reports),
+        "clusters": clusters
+    }
 
 @app.post("/assign")
 def assign_cluster(cluster_id: int, ngo_name: str, db: Session = Depends(get_db)):

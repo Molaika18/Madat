@@ -1,48 +1,27 @@
-# priority.py
-
 import math
-from cluster import get_clusters, add_report, initialize
+from cluster import get_clusters
 from coverage_score import get_coverage_at
 
-# -------------------------------
-# MOCK COVERAGE FUNCTION
-# -------------------------------
-
-def get_coverage_score(lat, lon):
-    """
-    Temporary mock coverage score.
-    Replace later with real grid logic.
-    """
-    # Simulate some coverage variation
-    if lat > 26.3:
-        return 0.2
-    elif lat > 26.2:
-        return 0.5
-    else:
-        return 0.8
-
-
-# -------------------------------
-# PRIORITY ALERTS
-# -------------------------------
 
 def get_priority_alerts():
     clusters = get_clusters()
     alerts = []
 
     for cluster in clusters:
-
         if cluster["credibility"] == "low":
             continue
-        
-        result = get_coverage_at(cluster["centroid_lat"], cluster["centroid_lon"])
-        coverage = result["coverage_score"]
-        gap = 1 - coverage
 
+        try:
+            result = get_coverage_at(cluster["centroid_lat"], cluster["centroid_lon"])
+            coverage = result["coverage_score"]
+        except Exception as e:
+            print(f"Coverage lookup failed for {cluster['settlement']}: {e}")
+            coverage = 0.0
+
+        gap = 1 - coverage
         report_count = cluster["size"]
         population_weight = math.log1p(report_count) / math.log1p(20)
         cred_score = cluster["credibility_score"]
-
         priority_score = round(cred_score * gap * population_weight, 4)
 
         if priority_score > 0.6:
@@ -71,14 +50,9 @@ def get_priority_alerts():
     return alerts
 
 
-# -------------------------------
-# TEST
-# -------------------------------
-
 if __name__ == "__main__":
-    initialize()
+    from cluster import add_report
 
-    # Seed data
     for i in range(7):
         add_report(26.32 + (i * 0.001), 91.0 + (i * 0.001), "food", 5)
 
@@ -87,9 +61,7 @@ if __name__ == "__main__":
     add_report(26.152, 91.299, "food", 4)
 
     alerts = get_priority_alerts()
-
     print(f"\nPriority alerts: {len(alerts)}\n")
-
     for a in alerts:
         print(f"[{a['alert_level']}] {a['settlement']}")
         print(f"  Score: {a['priority_score']} | Need: {a['dominant_need']}")

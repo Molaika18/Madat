@@ -31,3 +31,7 @@ export async function fetchClusters() {
     const res = await fetch(`${BASE_URL}/clusters`);
     return res.json();
 }
+export async function fetchNGOs() {
+    const res = await fetch("http://127.0.0.1:8000/ngos");
+    return res.json();
+}

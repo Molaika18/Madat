@@ -13,8 +13,14 @@ import os
 # -------------------------------
 
 reports = []
-settlements = None
-
+# --- LOAD SETTLEMENTS --- (must be at top level, not inside any function or if block)
+india = gpd.read_file("data/gadm41_IND_2.shp")
+assam = india[india['NAME_1'] == 'Assam']
+assam_utm = assam.to_crs("EPSG:32646")
+settlements = assam_utm.copy()
+settlements['geometry'] = assam_utm.geometry.centroid
+settlements['name'] = assam['NAME_2'].values
+settlements = settlements[['name', 'geometry']].reset_index(drop=True)
 
 # -------------------------------
 # INITIALIZE SETTLEMENT DATA
