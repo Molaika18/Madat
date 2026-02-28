@@ -12,7 +12,6 @@ from cluster import add_report as ml_add_report, run_clustering
 from coverage_score import grid, update_coverage
 from priority import get_priority_alerts
 
-# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AidSync API")
