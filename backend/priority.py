@@ -1,8 +1,8 @@
 # priority.py
 
 import math
-from backend.cluster import get_clusters, add_report, initialize
-
+from cluster import get_clusters, add_report, initialize
+from coverage_score import get_coverage_at
 
 # -------------------------------
 # MOCK COVERAGE FUNCTION
@@ -34,8 +34,9 @@ def get_priority_alerts():
 
         if cluster["credibility"] == "low":
             continue
-
-        coverage = get_coverage_score(cluster["centroid_lat"], cluster["centroid_lon"])
+        
+        result = get_coverage_at(cluster["centroid_lat"], cluster["centroid_lon"])
+        coverage = result["coverage_score"]
         gap = 1 - coverage
 
         report_count = cluster["size"]

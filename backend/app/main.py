@@ -10,6 +10,7 @@ from app import models
 from app.database import SessionLocal, engine, Base
 from cluster import add_report as ml_add_report, run_clustering
 from coverage_score import grid, update_coverage
+from coverage_score import get_coverage_at
 from priority import get_priority_alerts
 
 Base.metadata.create_all(bind=engine)
@@ -139,22 +140,46 @@ def get_clusters(db: Session = Depends(get_db)):
 
 
 @app.get("/alerts")
-def get_alerts():
-    return get_priority_alerts()
+def get_alerts(db: Session = Depends(get_db)):
+    clusters = db.query(models.Cluster).all()
+    alerts = []
 
+    for c in clusters:
+        coverage = get_coverage_at(c.centroid_lat, c.centroid_lon)
+        gap = 1 - coverage
+        cred_score = c.credibility
+
+        priority_score = round(cred_score * gap, 4)
+
+        if priority_score > 0.6:
+            level = "CRITICAL"
+        elif priority_score > 0.3:
+            level = "HIGH"
+        else:
+            level = "MEDIUM"
+
+        alerts.append({
+            "cluster_id": c.id,
+            "lat": c.centroid_lat,
+            "lon": c.centroid_lon,
+            "priority_score": priority_score,
+            "alert_level": level,
+            "dominant_need": c.category,
+            "cluster_size": c.cluster_size,
+            "coverage": round(coverage, 4),
+            "gap": round(gap, 4)
+        })
+
+    alerts.sort(key=lambda x: x["priority_score"], reverse=True)
+    return alerts
 
 @app.get("/coverage")
 def get_coverage():
-    return [
-        {
-            "lat": c["lat"],
-            "lon": c["lon"],
-            "population": c["population"],
-            "coverage_score": c["coverage_score"]
-        }
-        for c in grid if c["population"] > 0
-    ]
-
+    from coverage_score import grid
+    populated = grid[grid['population'] > 0]
+    return populated[['centroid_lat', 'centroid_lon', 'population', 'coverage_score']].rename(
+        columns={'centroid_lat': 'lat', 'centroid_lon': 'lon'}
+    ).round(4).to_dict('records')
 
 @app.get("/ngos")
 def get_ngos():
