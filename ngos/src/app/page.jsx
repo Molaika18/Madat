@@ -184,7 +184,7 @@ export default function MadatLanding() {
           <div className="logo-dot" />
         </div>
 
-        <button className="btn-ngo" onClick={() => router.push("/ngo")}>
+        <button className="btn-ngo" onClick={() => router.push("/signup")}>
           NGO Login
         </button>
       </nav>

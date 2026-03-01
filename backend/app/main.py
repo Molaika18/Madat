@@ -170,17 +170,14 @@ def get_coverage():
 
 @app.get("/ngos")
 def get_ngos():
-    return NGO_DATA
-
+    return NGO_DATA.get("ngos", NGO_DATA)
 
 @app.get("/ngos/nearby")
 def ngos_nearby(lat: float, lon: float, limit: int = 5):
-    sorted_ngos = sorted(
-        NGO_DATA,
-        key=lambda n: math.sqrt((n["lat"] - lat)**2 + (n["lon"] - lon)**2)
-    )
+    all_ngos = NGO_DATA.get("ngos", NGO_DATA)
+    valid = [n for n in all_ngos if isinstance(n, dict) and n.get("lat") and n.get("lon")]
+    sorted_ngos = sorted(valid, key=lambda n: math.sqrt((n["lat"] - lat)**2 + (n["lon"] - lon)**2))
     return sorted_ngos[:limit]
-
 
 # -------------------------
 # DISTRIBUTION
