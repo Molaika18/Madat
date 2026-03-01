@@ -1,53 +1,277 @@
-Madat
-Ek click, ek umeed — connecting hands for hands in need.
-Madat is a low-bandwidth, citizen-led disaster relief coordination platform that connects flood and disaster victims with nearby NGOs in real time, built for India's most vulnerable communities.
+# Madat
 
-The Problem
-During the 2023 Assam floods, people like Rekha — a 38-year-old daily wage earner from Barpeta — were stranded for 3 days with no aid, despite having a phone and signal.
-Why aid did not reach her:
+## *Ek click, ek umeed — connecting hands for hands in need.*
+---
 
-NGOs operate independently; aid often goes to easily accessible areas
-Coordination happens via WhatsApp, which is delayed and chaotic
-Relief systems assume literacy, English, or high-speed internet
-No simple, low-bandwidth, citizen-led way exists to report urgent need
+# Project Title
 
-User Profile:
-Age: 38, Barpeta, Assam. Occupation: Daily wage earner, Rs. 8,000/month. Device: Basic Android, 2G/weak 4G. Language: Assamese, limited literacy.
-She had a phone, signal, and urgent need — but lacked visibility, a direct channel, and structured reporting.
+# **Madat**
 
-Solution
-Madat bridges the gap between citizens in distress and NGOs with resources, in real time and even on 2G.
-From the User's Perspective:
+*A low-bandwidth, citizen-led disaster relief coordination platform for India's most vulnerable communities.*
 
-Opens the website and sees one large SOS button
-Selects their need via large icons — Food, Water, Medical, Shelter, etc.
-Shares location — report is submitted instantly
+---
 
-What Happens Behind the Scenes:
+# Introduction
 
-Report appears on the NGO heatmap in real time
-Nearby NGOs see verified clusters and coverage gaps
-Nearest NGOs reach hotspots quickly, ensuring faster aid delivery
+During the **2023 floods in Assam**, thousands of families were stranded despite having mobile phones and network access.
 
-Pipeline: REPORT → GPS SNAP → CLUSTER → GAP DETECTION → NGO DASHBOARD → ASSIGN
+Rekha, a 38-year-old daily wage earner from Barpeta, survived 3 days without aid — not because help didn’t exist, but because **visibility and coordination did not**.
 
-Tech Stack
-Frontend: Next.js + React (PWA with offline mode), Lucide React for icons, Service Worker for caching.
-Backend: FastAPI, SQLite + SQLAlchemy (prototype, scalable to PostgreSQL/PostGIS), Firebase/Supabase optional for millions of concurrent users.
-Intelligence: DBSCAN Clustering for grouping SOS reports into distress zones, GeoPandas for geospatial processing, Folium/Leaflet for real-time NGO heatmaps.
-Connectivity: PWA Offline Mode, WebRTC P2P Fallback, DTN Queue (Delay-Tolerant Network) for auto-sending when internet returns, SMS Fallback via Twilio/MSG91.
+Madat bridges this gap.
 
-Scalability
-Lightweight UI: Progressive web app, minimal JS, works on 2G/weak phones. Efficient Backend: FastAPI + SQLite, scalable to Postgres/PostGIS. Smart Clustering: DBSCAN + GeoPandas, only new reports processed so updates are fast. Cached Heatmaps: Updated incrementally, reduces server load. Single Endpoint: Stable even with millions of submissions.
+It connects citizens in distress directly with nearby NGOs in real time — even on **2G networks**, even with **limited literacy**, and even during infrastructure breakdowns.
 
-Growth Roadmap
-Phase 1: Pilot with 10–100 users in select communities. Phase 2: Expand via local NGOs and district-level programs. Phase 3: Cover all disaster-prone regions across India. Phase 4: Multilingual support — Hindi, Tamil, Telugu, Bengali.
-Citizens reach Madat via QR codes in disaster-prone areas, NGO broadcasts, community volunteers, and district-level government programs.
+---
 
-Unit Economics
-Free for citizens always. Funding through NGO donations, government grants, and CSR contributions.
+# The Problem
 
-Team
-Drowsy Devs — built for India's most vulnerable communities.
+During disasters:
 
-"Ek click, ek umeed — connecting hands for hands in need."
+* NGOs operate independently
+* Aid often goes to easily accessible areas
+* Coordination happens via WhatsApp — delayed and chaotic
+* Systems assume literacy, English, or high-speed internet
+* No structured, low-bandwidth citizen-led SOS channel exists
+
+People have phones.
+People have signal.
+But they don’t have **visibility**.
+
+---
+
+# 👤 User Profile
+
+**Age:** 38
+**Location:** Barpeta, Assam
+**Occupation:** Daily wage earner (₹8,000/month)
+**Device:** Basic Android (2G / weak 4G)
+**Language:** Assamese (limited literacy)
+
+She had:
+
+* A phone
+* A signal
+* Urgent need
+
+She lacked:
+
+* Direct channel
+* Structured reporting
+* Real-time visibility
+
+Madat is built for *her*.
+
+---
+
+# The Solution
+
+Madat connects citizens in distress with NGOs that have resources — in real time.
+
+## From the Citizen’s Perspective
+
+1. Open website
+2. See one large **SOS button**
+3. Select need via large icons:
+
+   * Food
+   * Water
+   * Medical
+   * Shelter
+   * Rescue
+4. Share location
+5. Report submitted instantly
+
+No forms.
+No English required.
+No heavy data usage.
+
+---
+
+# What Happens Behind the Scenes
+
+```
+REPORT → GPS SNAP → CLUSTER → GAP DETECTION → NGO DASHBOARD → ASSIGN
+```
+
+1. Location is captured
+2. Reports are clustered into distress zones
+3. Coverage gaps are detected
+4. NGOs see live hotspots
+5. Nearest NGO responds
+
+---
+
+# Core Features
+
+## One-Tap SOS Reporting
+
+* Icon-based interface
+* Works on 2G
+* PWA installable on basic Android phones
+* Offline support
+
+## Intelligent Clustering
+
+* DBSCAN groups nearby SOS reports
+* Detects distress zones
+* Prevents duplicate aid deployment
+
+## Real-Time NGO Heatmap
+
+* Visual cluster density
+* Coverage scoring
+* Nearby NGO discovery
+* Resource assignment tracking
+
+## Connectivity Resilience
+
+* Offline PWA mode
+* Service Worker caching
+* Delay-Tolerant Network (DTN) queue
+* WebRTC peer-to-peer fallback
+* SMS fallback (Twilio / MSG91)
+
+---
+
+# Architecture
+
+```
+Citizen → Report → Backend
+Backend → DBSCAN → Distress Zones
+Distress Zones → Coverage Analysis
+Coverage Gaps → NGO Dashboard
+NGO Assignment → Aid Delivery
+```
+
+**Single source of truth:** Central database
+
+---
+
+# Tech Stack
+
+## Frontend
+
+* Next.js
+* React (PWA with offline mode)
+* Lucide React (icon system)
+* Service Worker caching
+
+## Backend
+
+* FastAPI
+* SQLite + SQLAlchemy (prototype)
+* Scalable to PostgreSQL / PostGIS
+* Optional Firebase / Supabase for large-scale concurrency
+
+## Intelligence Layer
+
+* DBSCAN clustering
+* GeoPandas
+* Folium / Leaflet heatmaps
+
+## Connectivity Layer
+
+* PWA Offline Mode
+* WebRTC P2P fallback
+* DTN Queue (auto-send when internet returns)
+* SMS fallback (Twilio / MSG91)
+
+---
+
+# Scalability
+
+### Lightweight UI
+
+* Minimal JavaScript
+* Progressive Web App
+* Works on weak phones and 2G
+
+### Efficient Backend
+
+* SQLite prototype → Postgres/PostGIS scale
+* Only new reports processed during clustering
+* Incremental heatmap updates
+* Single stable endpoint
+
+Built to handle **millions of submissions**.
+
+---
+
+# Growth Roadmap
+
+## Phase 1
+
+Pilot with 10–100 users in select communities.
+
+## Phase 2
+
+Expand through local NGOs and district programs.
+
+## Phase 3
+
+Cover disaster-prone regions across India.
+
+## Phase 4
+
+Multilingual support:
+
+* Hindi
+* Tamil
+* Telugu
+* Bengali
+* Assamese
+
+Distribution channels:
+
+* QR codes in flood-prone zones
+* NGO broadcasts
+* Community volunteers
+* District-level government programs
+
+---
+
+# Unit Economics
+
+* Free for citizens — always
+* Funded by:
+
+  * NGO partnerships
+  * Government grants
+  * CSR contributions
+
+---
+
+# Unique Value
+
+Madat is not just a reporting tool.
+
+It:
+
+* Gives visibility to invisible citizens
+* Clusters need in real time
+* Prevents overlapping aid
+* Detects underserved zones
+* Works on 2G networks
+* Requires minimal literacy
+* Enables data-driven NGO coordination
+
+It is **citizen-led crisis intelligence**.
+
+---
+
+# Team
+
+**Drowsy Devs**
+
+Built for India's most vulnerable communities.
+
+---
+---
+
+## 🇮🇳 Vision
+
+In disasters, speed saves lives.
+Visibility prevents neglect.
+Coordination reduces suffering.
+
+**Madat — Ek click, ek umeed.**
