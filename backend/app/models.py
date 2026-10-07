@@ -47,3 +47,16 @@ class Gaps(Base):
     population = Column(Integer)
     coverage_score = Column(Float)
     is_gap = Column(Boolean)
+
+class NGORegistration(Base):
+    __tablename__ = "ngo_registrations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    organization_name = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    state = Column(String, nullable=True)
+    contact_name = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    resources = Column(String, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)

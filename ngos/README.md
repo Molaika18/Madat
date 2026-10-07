@@ -2,6 +2,13 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+## API configuration
+
+The app reads its backend URL from `NEXT_PUBLIC_API_URL`. For local work, create
+`ngos/.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000`. For a
+deployed frontend, set that variable in the hosting provider to the public
+FastAPI service URL, then redeploy the frontend.
+
 First, run the development server:
 
 ```bash

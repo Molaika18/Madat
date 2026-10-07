@@ -1,6 +1,7 @@
 'use client'
 import { useState } from "react";
 import bgImage from "@/components/background.jpg";
+import { registerNGO } from "../../lib/api";
 
 const tickerItems = [
  "2,847 SOS alerts resolved this month",
@@ -25,6 +26,8 @@ const stateOptions = [
 export default function NGOSignUp() {
  const [selectedResources, setSelectedResources] = useState([]);
  const [submitted, setSubmitted] = useState(false);
+ const [submitting, setSubmitting] = useState(false);
+ const [submitError, setSubmitError] = useState("");
  const [orgName, setOrgName] = useState("");
  const [city, setCity] = useState("");
  const [state, setState] = useState("");
@@ -39,7 +42,7 @@ export default function NGOSignUp() {
  );
  };
 
- const handleSubmit = () => {
+ const handleSubmit = async () => {
  const newErrors = {};
  if (!orgName.trim()) newErrors.orgName = true;
  if (!city.trim()) newErrors.city = true;
@@ -47,7 +50,25 @@ export default function NGOSignUp() {
  setErrors(newErrors);
  return;
  }
- setSubmitted(true);
+ setSubmitting(true);
+ setSubmitError("");
+ try {
+  await registerNGO({
+   organization_name: orgName,
+   city,
+   state: state || null,
+   contact_name: contactName || null,
+   phone: phone || null,
+   email: email || null,
+   resources: selectedResources,
+  });
+  setSubmitted(true);
+ } catch (error) {
+  setSubmitError("Could not register your NGO. Please try again.");
+  console.error("NGO registration failed", error);
+ } finally {
+  setSubmitting(false);
+ }
  };
 
  return (
@@ -209,7 +230,8 @@ export default function NGOSignUp() {
  <input className="ngo-input" type="email" placeholder="org@example.com" value={email} onChange={e => setEmail(e.target.value)} />
  </div>
 
- <button className="btn-submit" onClick={handleSubmit}>REGISTER NGO →</button>
+ {submitError && <div role="alert" style={{ color: "#FC8181", fontSize: 12, marginTop: 10 }}>{submitError}</div>}
+ <button className="btn-submit" onClick={handleSubmit} disabled={submitting}>{submitting ? "REGISTERING..." : "REGISTER NGO →"}</button>
  </>
  ) : (
  <div style={{ textAlign: "center", padding: "30px 0" }}>

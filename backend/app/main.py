@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import json
 import math
+from pathlib import Path
 
 from app import models
 from app.database import SessionLocal, engine, Base
@@ -24,7 +25,8 @@ app.add_middleware(
 )
 
 # Load NGOs at startup
-with open("data/assam_ngos_geocoded.json") as f:
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+with open(DATA_DIR / "assam_ngos_geocoded.json") as f:
     NGO_DATA = json.load(f)
 
 
@@ -57,6 +59,16 @@ class DistributionCreate(BaseModel):
     longitude: float
     beneficiaries: int = 500
     radius_km: float = 1.5
+
+
+class NGORegistrationCreate(BaseModel):
+    organization_name: str
+    city: str
+    state: str | None = None
+    contact_name: str | None = None
+    phone: str | None = None
+    email: str | None = None
+    resources: list[str] = []
 
 
 # -------------------------
@@ -146,7 +158,7 @@ def get_clusters(db: Session = Depends(get_db)):
 
 @app.get("/alerts")
 def get_alerts(db: Session = Depends(get_db)):
-    return get_priority_alerts()
+    return get_priority_alerts(db)
 
 
 # -------------------------
@@ -171,6 +183,23 @@ def get_coverage():
 @app.get("/ngos")
 def get_ngos():
     return NGO_DATA.get("ngos", NGO_DATA)
+
+
+@app.post("/ngos", status_code=201)
+def register_ngo(ngo: NGORegistrationCreate, db: Session = Depends(get_db)):
+    registration = models.NGORegistration(
+        organization_name=ngo.organization_name,
+        city=ngo.city,
+        state=ngo.state,
+        contact_name=ngo.contact_name,
+        phone=ngo.phone,
+        email=ngo.email,
+        resources=json.dumps(ngo.resources),
+    )
+    db.add(registration)
+    db.commit()
+    db.refresh(registration)
+    return {"status": "registered", "ngo_id": registration.id}
 
 @app.get("/ngos/nearby")
 def ngos_nearby(lat: float, lon: float, limit: int = 5):
@@ -197,7 +226,9 @@ def create_distribution(d: DistributionCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(dist)
 
-    update_coverage(d.latitude, d.longitude, d.beneficiaries, d.radius_km * 1000)
+    from coverage_score import add_distribution
+    add_distribution(d.latitude, d.longitude, d.aid_type, d.beneficiaries, d.radius_km * 1000)
+    update_coverage()
 
     return {"status": "distribution_logged", "distribution_id": dist.id}
 

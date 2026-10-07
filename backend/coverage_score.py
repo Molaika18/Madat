@@ -1,10 +1,12 @@
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Point
+from pathlib import Path
 
 # --- LOAD GRID ---
 print("Loading grid...")
-grid = gpd.read_file("data/assam_grid.geojson")
+DATA_DIR = Path(__file__).resolve().parent / "data"
+grid = gpd.read_file(DATA_DIR / "assam_grid.geojson")
 grid['coverage_score'] = 0.0
 print(f"Grid loaded: {len(grid)} cells")
 

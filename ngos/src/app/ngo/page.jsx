@@ -172,8 +172,8 @@ export default function NGODashboard() {
       <div style={{ fontSize: 12, color: "#aaa", marginTop: 6 }}>
         {ngos.length} NGOs loaded across Assam
       </div>
-      {ngos.slice(0, 5).map((n) => (
-        <div key={n.ngo_id} style={{
+      {ngos.slice(0, 5).map((n, index) => (
+        <div key={n.ngo_id ?? n.id ?? `${n.ngoName ?? n.name ?? "ngo"}-${n.districtName ?? n.district ?? index}`} style={{
           marginTop: 8, padding: "6px 10px",
           background: "rgba(255,255,255,0.03)",
           borderRadius: 6, fontSize: 11, color: "#bbb",
